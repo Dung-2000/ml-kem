@@ -5,8 +5,8 @@ DEFAULT_GOAL := help
 help:
 	@for file in $(MAKEFILE_LIST); do \
 	   grep -E '^[a-zA-Z_-]+:.*?## .*$$' $${file} | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}';\
-	done
 
+	done
 CXX ?= clang++
 CXX_FLAGS := -std=c++20
 WARN_FLAGS := -Wall -Wextra -Wpedantic
@@ -27,6 +27,7 @@ BUILD_DIR := build
 include tests/test.mk
 include benchmarks/bench.mk
 include examples/example.mk
+include mytest/mytest.mk
 
 $(SUBTLE_INC_DIR):
 	git submodule update --init subtle

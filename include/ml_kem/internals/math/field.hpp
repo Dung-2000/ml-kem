@@ -123,6 +123,13 @@ public:
 
     return zq_t::from_non_reduced(static_cast<uint32_t>(res));
   }
+
+
+  friend std::ostream& operator<<(std::ostream& os, const zq_t& z) {
+    os << z.v;
+    return os;
+  }
+
 };
 
 }
