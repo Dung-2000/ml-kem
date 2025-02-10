@@ -16,7 +16,7 @@ $(MYTEST_BUILD_DIR):
 $(MYTEST_BUILD_DIR)/%.exe: $(MYTEST_DIR)/%.cpp $(MYTEST_BUILD_DIR)
 	$(CXX) $(CXX_DEFS) $(CXX_FLAGS) $(WARN_FLAGS) $(DEBUG_FLAGS) $(I_FLAGS) $(DEP_IFLAGS) $< -o $@
 
-mytest: $(MYTEST_EXECS) ## Build and run mytest program, using the ml-ken as  API lib
+mytest: $(MYTEST_EXECS) ## Build and run mytest program, using the ml-ken as API lib
 	$(foreach exec,$^,./$(exec);)
 
 $(MYDEBUG_BUILD_DIR):

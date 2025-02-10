@@ -1,126 +1,54 @@
+#include <iostream>
+#include <array>
 #include "ml_kem/internals/math/field.hpp"
 #include "ml_kem/internals/poly/ntt.hpp"
-#include "ml_kem/internals/poly/poly_vec.hpp"
-#include <iostream>
-
-using namespace ml_kem_ntt;
 
 int main() {
+    constexpr size_t N = ml_kem_ntt::N;
+    using zq_t = ml_kem_field::zq_t;
 
+    // Represent two big numbers as polynomials
+    std::array<zq_t, N> num1{}, num2{}, result{};
 
+    // Initialize num1 and num2 as coefficients of big numbers
+    // Example: num1 = 1234 -> [4, 3, 2, 1], num2 = 5678 -> [8, 7, 6, 5]
+    num1[0] = 4; num1[1] = 3; num1[2] = 2; num1[3] = 1;
+    num2[0] = 8; num2[1] = 7; num2[2] = 6; num2[3] = 5;
 
-  std::array<ml_kem_field::zq_t, N> f;
-  std::array<ml_kem_field::zq_t, N> g;
+    // Perform forward NTT on both num1 and num2
+    std::cout << "test NTT INTT \n"; 
+    ml_kem_ntt::ntt(num1);
+    ml_kem_ntt::intt(num1);
+    std::cout << "start test Multiply with NTT\n"; 
+    ml_kem_ntt::ntt(num1);
+    ml_kem_ntt::ntt(num2);
 
-  // Initialize the polynomials with some values.
-  for (size_t i = 0; i < N; i++) {
-    f[i] = ml_kem_field::zq_t(i);
-    g[i] = ml_kem_field::zq_t(i + 1);
-  }
+    // std::cout << "print out the intermedia result ntt(num1): ";
+    // for (size_t i = 0; i < N; ++i) {
+    //     if (num1[i] != zq_t::zero()) { // Print only non-zero coefficients
+    //         std::cout << num1[i] << " ";
+    //     }
+    // }
+    // std::cout << std::endl;
+
+    // Multiply in the NTT domain
+    ml_kem_ntt::polymul(num1, num2, result);
+
+    // Perform inverse NTT on the result
+    ml_kem_ntt::intt(result);
+
+    // Output the resulting coefficients
+    // std::cout << "Resulting coefficients (polynomial form): ";
+    // for (size_t i = 0; i < N; ++i) {
+    //     if (result[i] != zq_t::zero()) { // Print only non-zero coefficients
+    //         std::cout << '(' << result[i]  <<", " << i << ')';
+    //     }
+    // }
+    // std::cout << std::endl;
   for(size_t i = 0; i < N; i++) {
-    std::span<ml_kem_field::zq_t> vec=f;
-    ml_kem_utils::poly_vec_ntt(vec);
+    std::cout << "(i, " << result[i] << "), ";  
+  }
+  std::cout << '\n'; 
 
-  }
-
-  std::cout << std::endl << "print original f value" << std::endl;
-  for (size_t i = 1; i <= N; i++) {
-    std::cout << f[i-1] << " ";
-    if(i%8 == 0) std::cout << std::endl;
-  }
-  std::cout << std::endl << "print original g value" << std::endl;
- for (size_t i = 1; i <= N; i++) {
-    std::cout << g[i-1] << " ";
-    if(i%8 == 0) std::cout << std::endl;
-  }
-  // Convert the polynomials to NTT form.
-  ntt(f);
-  std::cout << "print NTT result f'" << std::endl;
-  for (size_t i = 1; i <= N; i++) {
-    std::cout << f[i-1] << " ";
-    if(i%8 == 0) std::cout << std::endl;
-  }
-  ntt(g);
-
-  // Multiply the polynomials in NTT form.
-  std::array<ml_kem_field::zq_t, N> h;
-  polymul(f, g, h);
-  std::cout << "print NTT dot product result f'.g'=h'" << std::endl;
-  for (size_t i = 1; i <= N; i++) {
-    std::cout << h[i-1] << " ";
-    if(i%8 == 0) std::cout << std::endl;
-  }
-  // Convert the result back to the original domain.
-  intt(h);
-
-  // Print the product polynomial.
-  std::cout << "print INTT result h 123" << std::endl;
-  for (size_t i = 1; i <= N; i++) {
-    std::cout << h[i-1] << " ";
-    if(i%8 == 0) std::cout << std::endl;
-  }
-
-  return 0;
+    return 0;
 }
-
-/*
-
-#include "ml_kem_ntt.hpp"
-
-#include <gtest/gtest.h>
-
-using namespace ml_kem_ntt;
-
-TEST(NttTest, Basic) {
-  // Define a degree-255 polynomial.
-  std::array<ml_kem_field::zq_t, N> f;
-
-  // Initialize the polynomial with some values.
-  for (size_t i = 0; i < N; i++) {
-    f[i] = ml_kem_field::zq_t(i);
-  }
-
-  // Convert the polynomial to NTT form.
-  ntt(f);
-
-  // Convert the polynomial back to the original domain.
-  intt(f);
-
-  // Check that the polynomial is unchanged.
-  for (size_t i = 0; i < N; i++) {
-    EXPECT_EQ(f[i], ml_kem_field::zq_t(i));
-  }
-}
-
-TEST(NttTest, Multiplication) {
-  // Define two degree-255 polynomials.
-  std::array<ml_kem_field::zq_t, N> f;
-  std::array<ml_kem_field::zq_t, N> g;
-
-  // Initialize the polynomials with some values.
-  for (size_t i = 0; i < N; i++) {
-    f[i] = ml_kem_field::zq_t(i);
-    g[i] = ml_kem_field::zq_t(i + 1);
-  }
-
-  // Convert the polynomials to NTT form.
-  ntt(f);
-  ntt(g);
-
-  // Multiply the polynomials in NTT form.
-  std::array<ml_kem_field::zq_t, N> h;
-  polymul(f, g, h);
-
-  // Convert the result back to the original domain.
-  intt(h);
-
-  // Check that the product polynomial is correct.
-  for (size_t i = 0; i < N; i++) {
-    ml_kem_field::zq_t expected = 0;
-    for (size_t j = 0; j < N; j++) {
-      expected += f[j] * g[(i - j + N) % N];
-    }
-    EXPECT_EQ(h[i], expected);
-  }
-}
-*/
