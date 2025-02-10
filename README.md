@@ -1,3 +1,8 @@
+# Note from 1132917
+The original README.md is as following, my modified on mytest folder. only test for understanding the NTT/INTT inside FIPS-203(ml-kem)
+
+------
+
 > [!CAUTION]
 > This ML-KEM implementation is conformant with ML-KEM standard https://doi.org/10.6028/NIST.FIPS.203 and I also *try* to make it timing leakage free, but be informed that this implementation is not *yet* audited. **If you consider using it in production, please be careful !**
 
